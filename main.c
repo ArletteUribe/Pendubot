@@ -3,11 +3,11 @@
  * 			 Arlette Gabriela Uribe Ventura
  */
 
+#include <encoder1250.h>
 #include <stdint.h>
 #include <stdio.h>
 #include "FreeRTOS.h"
 #include "task.h"
-#include "encoder.h"
 
 /******************************************************************************
  * Definitions:
@@ -41,7 +41,7 @@ int main(void)
 	xTaskCreate(encoder_sample_task, "encoder", 100, NULL, 10, NULL);
 	xTaskCreate(bg_task, "background", 100, NULL, 1, NULL);
 
-	encoder_init_meas();
+	encoder_init_meas1250();
 
 	vTaskStartScheduler();
 
@@ -59,7 +59,7 @@ void encoder_sample_task(void *pvParameters)
 {
 	while (1)
 	{
-		frecuencia = encoder_get_freq();
+		frecuencia = encoder_get_freq1250();
 		printf("Frecuencia redondeada: %d\n", (uint32_t)frecuencia);
 		vTaskDelay(SAMPLE_TIME);
 	}
