@@ -3,7 +3,9 @@
  * 			 Arlette Gabriela Uribe Ventura
  */
 
-#include <encoder1250.h>
+#include "encoder1250.h"
+#include "encoder600.h"
+#include "current.h"
 #include <stdint.h>
 #include <stdio.h>
 #include "FreeRTOS.h"
@@ -21,7 +23,9 @@
 ******************************************************************************/
 
 uint8_t count = 0;
-float frecuencia;
+float frecuencia1250;
+float frecuencia600;
+float corriente;
 
 
 /******************************************************************************
@@ -42,6 +46,8 @@ int main(void)
 	xTaskCreate(bg_task, "background", 100, NULL, 1, NULL);
 
 	encoder_init_meas1250();
+	encoder_init_meas600();
+	current_init();
 
 	vTaskStartScheduler();
 
@@ -59,8 +65,12 @@ void encoder_sample_task(void *pvParameters)
 {
 	while (1)
 	{
-		frecuencia = encoder_get_freq1250();
-		printf("Frecuencia redondeada: %d\n", (uint32_t)frecuencia);
+		frecuencia1250 = encoder_get_freq1250();
+		frecuencia600  = encoder_get_freq600();
+		corriente      = current_get_value();
+		printf("Frecuencia redondeada: %d (/1250)\n", (uint32_t)frecuencia1250);
+		printf("Frecuencia redondeada: %d (/600)\n", (uint32_t)frecuencia600);
+		printf("Corriente (0-4095): %d", corriente);
 		vTaskDelay(SAMPLE_TIME);
 	}
 }
