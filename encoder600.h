@@ -15,6 +15,7 @@
 #include "fsl_pit.h"
 #include "fsl_clock.h"
 #include "MK66F18.h"
+#include "arm_math.h"
 
 /******************************************************************************
  * Definitions:
@@ -45,5 +46,7 @@ void capture_values600(uint32_t flags);
 void encoder_init_meas600(void);
 
 float encoder_get_freq600(void);
+
+float encoder_get_pos600(void);
 
 #endif /* ENCODER600_H_ */

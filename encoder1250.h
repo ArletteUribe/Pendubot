@@ -46,4 +46,6 @@ void encoder_init_meas1250(void);
 
 float encoder_get_freq1250(void);
 
+float encoder_get_pos1250(void);
+
 #endif /* ENCODER1250_H_ */

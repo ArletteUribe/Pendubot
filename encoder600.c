@@ -14,7 +14,9 @@
 ******************************************************************************/
 
 uint8_t g_flag600 = 0;
-uint32_t g_pit_period600 = 0;
+int32_t g_pit_period600 = 0;
+int32_t g_position600 = 0;
+int8_t g_sign600 = 0;
 
 
 /******************************************************************************
@@ -31,8 +33,22 @@ void capture_values600(uint32_t flags)
 	else
 	{
 		g_pit_period600 = USEC_TO_COUNT(5000000U,21000000U) - PIT_GetCurrentTimerCount(PIT, MEAS_PIT_CHNL2);
+		if (GPIO_PinRead(CHNL_B_GPIO2, CHNL_B_PIN2))
+		{
+			g_sign600 = -1;
+			g_position600--;
+		}
+		else
+		{
+			g_sign600 = 1;
+			g_position600++;
+		}
 		PIT_StopTimer(PIT, MEAS_PIT_CHNL2);
 		PIT_StartTimer(PIT, MEAS_PIT_CHNL2);
+	}
+	if (600U == g_position600)
+	{
+		g_position600 = 0;
 	}
 }
 
@@ -82,14 +98,18 @@ void encoder_init_meas600(void)
 
 float encoder_get_freq600(void)
 {
-	// TODO: revisar el canal B para determinar el sentido
 	float frequency = 0.0f;
 	if (g_pit_period600)
 	{
 		frequency = ((float)CLOCK_GetFreq(kCLOCK_BusClk)) / g_pit_period600;
 	}
 
-	return frequency;
+	return frequency*((float)g_sign600);
+}
+
+float encoder_get_pos600(void)
+{
+	return -PI + PI*((float)g_position600)/300.0f;
 }
 
 void ENCODER2_IRQ_NAME(void)

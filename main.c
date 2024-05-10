@@ -15,7 +15,7 @@
  * Definitions:
 ******************************************************************************/
 
-#define SAMPLE_TIME pdMS_TO_TICKS(100)
+#define SAMPLE_TIME pdMS_TO_TICKS(10)
 
 
 /******************************************************************************
@@ -25,7 +25,7 @@
 uint8_t count = 0;
 float frecuencia1250;
 float frecuencia600;
-float corriente;
+float posicion_motor = -PI;
 
 
 /******************************************************************************
@@ -33,7 +33,6 @@ float corriente;
 ******************************************************************************/
 
 void encoder_sample_task(void *pvParameters);
-void bg_task(void *pvParameters);
 
 
 /******************************************************************************
@@ -43,7 +42,6 @@ void bg_task(void *pvParameters);
 int main(void)
 {
 	xTaskCreate(encoder_sample_task, "encoder", 100, NULL, 10, NULL);
-	xTaskCreate(bg_task, "background", 100, NULL, 1, NULL);
 
 	encoder_init_meas1250();
 	encoder_init_meas600();
@@ -65,19 +63,10 @@ void encoder_sample_task(void *pvParameters)
 {
 	while (1)
 	{
-		frecuencia1250 = encoder_get_freq1250();
 		frecuencia600  = encoder_get_freq600();
-		corriente      = current_get_value();
-		printf("Frecuencia redondeada: %d (/1250)\n", (uint32_t)frecuencia1250);
-		printf("Frecuencia redondeada: %d (/600)\n", (uint32_t)frecuencia600);
-		printf("Corriente (0-4095): %d", corriente);
+		posicion_motor += (frecuencia600/600.0f)*0.01f;
+		printf("Posición redondeada: %d (motor)\n", (int32_t)posicion_motor);
 		vTaskDelay(SAMPLE_TIME);
 	}
 }
 
-void bg_task(void *pvParameters)
-{
-	while(1)
-	{
-	}
-}
