@@ -5,11 +5,11 @@
 
 #include "encoder1250.h"
 #include "encoder600.h"
-#include "current.h"
 #include <stdint.h>
 #include <stdio.h>
 #include "FreeRTOS.h"
 #include "task.h"
+#include "gpio.h"
 
 /******************************************************************************
  * Definitions:
@@ -40,7 +40,6 @@ int main(void)
 
 	encoder_init_meas1250();
 	encoder_init_meas600();
-	current_init();
 
 	vTaskStartScheduler();
 
