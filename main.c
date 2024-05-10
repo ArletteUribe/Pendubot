@@ -15,17 +15,12 @@
  * Definitions:
 ******************************************************************************/
 
-#define SAMPLE_TIME pdMS_TO_TICKS(10)
+#define SAMPLE_TIME pdMS_TO_TICKS(100)
 
 
 /******************************************************************************
  * Static function prototypes:
 ******************************************************************************/
-
-uint8_t count = 0;
-float frecuencia1250;
-float frecuencia600;
-float posicion_motor = -PI;
 
 
 /******************************************************************************
@@ -41,7 +36,7 @@ void encoder_sample_task(void *pvParameters);
 
 int main(void)
 {
-	xTaskCreate(encoder_sample_task, "encoder", 100, NULL, 10, NULL);
+	xTaskCreate(encoder_sample_task, "encoder", 100, NULL, 2, NULL);
 
 	encoder_init_meas1250();
 	encoder_init_meas600();
@@ -61,11 +56,21 @@ int main(void)
 
 void encoder_sample_task(void *pvParameters)
 {
+	float frecuencia_motor;
+	float frecuencia_union;
+	float posicion_motor[2] = {-PI, 0};
+	float posicion_union[2] = {0, 0};
+
 	while (1)
 	{
-		frecuencia600  = encoder_get_freq600();
-		posicion_motor += (frecuencia600/600.0f)*0.01f;
-		printf("Posición redondeada: %d (motor)\n", (int32_t)posicion_motor);
+		posicion_motor[1] = posicion_motor[0];
+		posicion_motor[0] = encoder_get_pos600() - PI;
+		frecuencia_motor = (posicion_motor[0] - posicion_motor[1])/0.1f;
+
+		posicion_union[1] = posicion_union[0];
+		posicion_union[0] = encoder_get_pos1250();
+		frecuencia_union = (posicion_union[0] - posicion_union[1])/0.1f;
+
 		vTaskDelay(SAMPLE_TIME);
 	}
 }

@@ -14,6 +14,7 @@
 #include "fsl_gpio.h"
 #include "fsl_pit.h"
 #include "fsl_clock.h"
+#include "arm_math.h"
 #include "MK66F18.h"
 
 /******************************************************************************
@@ -33,14 +34,14 @@
 #define CHNL_B_PIN       7U
 #define CHNL_B_CLOCK     kCLOCK_PortC
 
-#define MEAS_PIT_CHNL  kPIT_Chnl_3
-
 
 /******************************************************************************
  * Function prototypes:
 ******************************************************************************/
 
 void capture_values1250(uint32_t flags);
+
+void capture_position1250(void);
 
 void encoder_init_meas1250(void);
 

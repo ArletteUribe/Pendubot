@@ -23,32 +23,15 @@ int8_t g_sign600 = 0;
  * Function code:
 ******************************************************************************/
 
-void capture_values600(uint32_t flags)
+void capture_position600(void)
 {
-	if(g_flag600 == 0)
+	if (GPIO_PinRead(CHNL_B_GPIO2, CHNL_B_PIN2))
 	{
-		PIT_StartTimer(PIT, MEAS_PIT_CHNL2);
-		g_flag600 = 1;
+		g_position600--;
 	}
 	else
 	{
-		g_pit_period600 = USEC_TO_COUNT(5000000U,21000000U) - PIT_GetCurrentTimerCount(PIT, MEAS_PIT_CHNL2);
-		if (GPIO_PinRead(CHNL_B_GPIO2, CHNL_B_PIN2))
-		{
-			g_sign600 = -1;
-			g_position600--;
-		}
-		else
-		{
-			g_sign600 = 1;
-			g_position600++;
-		}
-		PIT_StopTimer(PIT, MEAS_PIT_CHNL2);
-		PIT_StartTimer(PIT, MEAS_PIT_CHNL2);
-	}
-	if (600U == g_position600)
-	{
-		g_position600 = 0;
+		g_position600++;
 	}
 }
 
@@ -68,16 +51,6 @@ void encoder_init_meas600(void)
 			        kGPIO_DigitalInput,
 			        0
 			    };
-
-	// PIT config:
-	// PIT_Init function should only be executed once per program:
-#ifndef PIT_INIT_DONE
-#define PIT_INIT_DONE
-	pit_config_t pit_config;
-	PIT_GetDefaultConfig(&pit_config);
-	PIT_Init(PIT, &pit_config);
-#endif
-	PIT_SetTimerPeriod(PIT, MEAS_PIT_CHNL2, USEC_TO_COUNT(5000000U,21000000U));
 
 	// Config encoder channel pin as input with falling edge interrupt:
 	CLOCK_EnableClock(ENCODER2_CLOCK);
@@ -109,11 +82,11 @@ float encoder_get_freq600(void)
 
 float encoder_get_pos600(void)
 {
-	return -PI + PI*((float)g_position600)/300.0f;
+	return (PI/300.0f)*((float)g_position600);
 }
 
 void ENCODER2_IRQ_NAME(void)
 {
 	GPIO_PortClearInterruptFlags(ENCODER2_GPIO, 0xFFFF);
-	capture_values600(0);
+	capture_position600();
 }

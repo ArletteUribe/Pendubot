@@ -23,25 +23,23 @@
 
 #define ENCODER2_PORT     PORTC
 #define ENCODER2_GPIO     GPIOC
-#define ENCODER2_PIN      1U
+#define ENCODER2_PIN      2U
 #define ENCODER2_CLOCK    kCLOCK_PortC
-#define ENCODER2_IRQ_NUM  61U 	// PORTE
+#define ENCODER2_IRQ_NUM  61U 	// PORTC
 #define ENCODER2_IRQ_PRIO 1U
 #define ENCODER2_IRQ_NAME PORTC_IRQHandler
 
-#define CHNL_B_PORT2     PORTC
-#define CHNL_B_GPIO2     GPIOC
-#define CHNL_B_PIN2      6U
-#define CHNL_B_CLOCK2    kCLOCK_PortC
-
-#define MEAS_PIT_CHNL2    kPIT_Chnl_2
+#define CHNL_B_PORT2     PORTA
+#define CHNL_B_GPIO2     GPIOA
+#define CHNL_B_PIN2      25U
+#define CHNL_B_CLOCK2    kCLOCK_PortA
 
 
 /******************************************************************************
  * Function prototypes:
 ******************************************************************************/
 
-void capture_values600(uint32_t flags);
+void capture_position600(void);
 
 void encoder_init_meas600(void);
 
