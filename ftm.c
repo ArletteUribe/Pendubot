@@ -20,6 +20,12 @@ void FTM3_IRQHandler(void){
 
 void FTM_config(uint8_t Dutycycle,uint16_t pwm_frequency){
 
+    /* Port E Clock Gate Control: Clock enabled */
+    CLOCK_EnableClock(kCLOCK_PortD);
+
+    /* PORTE6 (pin E1) is configured as FTM3_CH1 */
+    PORT_SetPinMux(PORTD, 1U, kPORT_MuxAlt4);
+
     ftm_config_t ftmInfo;
     ftm_chnl_pwm_signal_param_t ftmParam;
     ftm_pwm_level_select_t pwmLevel = kFTM_HighTrue;
@@ -58,6 +64,10 @@ void FTM_setDutyCycle(uint8_t Dutycycle){
 
 	/* Start channel output with updated dutycycle */
 	FTM_UpdateChnlEdgeLevelSelect(FTM3, kFTM_Chnl_1, kFTM_HighTrue);
+
+	/* Enable interrupt flag to update PWM dutycycle */
+	FTM_EnableInterrupts(FTM3, kFTM_Chnl1InterruptEnable);
+
 }
 
 

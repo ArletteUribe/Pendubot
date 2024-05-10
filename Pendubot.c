@@ -16,6 +16,8 @@
 #include "fsl_clock.h"
 #include "fsl_port.h"
 
+uint8_t Dcycle = 0;
+
 int main(void) {
 
 	CLOCK_SetSimSafeDivs();
@@ -31,6 +33,17 @@ int main(void) {
 
     while(1) {
 
+    	SDK_DelayAtLeastUs(100000,CLOCK_GetFreq(kCLOCK_BusClk));
+
+    	if(Dcycle < 100){
+    		FTM_setDutyCycle(Dcycle);
+        	Dcycle++;
+    	}
+    	else{
+    		Dcycle = 0;
+    	}
+
+    	SDK_DelayAtLeastUs(100000,CLOCK_GetFreq(kCLOCK_BusClk));
     }
     return 0 ;
 }

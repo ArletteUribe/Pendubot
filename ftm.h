@@ -14,6 +14,9 @@
 
 #include "fsl_ftm.h"
 #include "MK66F18.h"
+#include "pin_mux.h"
+#include "fsl_clock.h"
+#include "fsl_port.h"
 
 /*******************************************************************************
  * Definitions & structures
