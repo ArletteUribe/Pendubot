@@ -17,7 +17,7 @@
  * Definitions:
 ******************************************************************************/
 
-#define SAMPLE_TIME pdMS_TO_TICKS(100)
+#define SAMPLE_TIME pdMS_TO_TICKS(10)
 
 
 /******************************************************************************
@@ -86,14 +86,23 @@ void encoder_sample_task(void *pvParameters)
 	{
 		posicion_motor[1] = posicion_motor[0];
 		posicion_motor[0] = encoder_get_pos600() - PI;
-		frecuencia_motor = (posicion_motor[0] - posicion_motor[1])/0.1f;
+		frecuencia_motor = (posicion_motor[0] - posicion_motor[1])/0.01f;
 
 		posicion_union[1] = posicion_union[0];
 		posicion_union[0] = encoder_get_pos1250();
-		frecuencia_union = (posicion_union[0] - posicion_union[1])/0.1f;
+		frecuencia_union = (posicion_union[0] - posicion_union[1])/0.01f;
 
 		if (apply_controller)
 		{
+			// En caso de que los brazos se caigan, abortar:
+			if ((posicion_motor[0] < -1.5f) || (posicion_motor[0] > 1.5f))
+			{
+				GPIO_PinWrite(GPIOB, 7U, 0U);
+				FTM_setDutyCycle(0U);
+				while (1)
+				{
+				}
+			}
 			ldc = LQR(posicion_motor[0], posicion_union[0], frecuencia_motor, frecuencia_union);
 			if (ldc > 3.3f)
 			{
