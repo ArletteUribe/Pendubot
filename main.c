@@ -12,6 +12,7 @@
 #include "gpio.h"
 #include "controlador.h"
 #include "ftm.h"
+#include "arm_math.h"
 
 /******************************************************************************
  * Definitions:
@@ -32,9 +33,17 @@ uint8_t apply_controller = 0;
 ******************************************************************************/
 
 void init_task(void *pvParameters);
+
 void encoder_sample_task(void *pvParameters);
 
 void start_control(void);
+
+/*
+void arm_float_to_q15(
+const float32_t * pSrc,
+      q15_t * pDst,
+      uint32_t blockSize);
+*/
 
 
 /******************************************************************************
@@ -43,6 +52,7 @@ void start_control(void);
 
 int main(void)
 {
+
 	xTaskCreate(init_task, "init", 100, NULL, 5, NULL);
 	xTaskCreate(encoder_sample_task, "encoder", 100, NULL, 2, &control_task);
 
@@ -82,8 +92,13 @@ void encoder_sample_task(void *pvParameters)
 	float ldc;
 	float dc;
 
+	q15_t q15_posicion_motor;
+	q15_t q15_1_5 = 0x0200;
+	q15_t q15_menos_1_5 = 0xFF80;
+
 	while (1)
 	{
+
 		posicion_motor[1] = posicion_motor[0];
 		posicion_motor[0] = encoder_get_pos600() - PI;
 		frecuencia_motor = (posicion_motor[0] - posicion_motor[1])/0.01f;
@@ -95,7 +110,10 @@ void encoder_sample_task(void *pvParameters)
 		if (apply_controller)
 		{
 			// En caso de que los brazos se caigan, abortar:
-			if ((posicion_motor[0] < -1.5f) || (posicion_motor[0] > 1.5f))
+
+			arm_float_to_q15(&posicion_motor[0],&q15_posicion_motor,1);
+
+			if ((q15_posicion_motor < q15_menos_1_5) || (q15_posicion_motor > q15_1_5))
 			{
 				GPIO_PinWrite(GPIOB, 7U, 0U);
 				FTM_setDutyCycle(0U);
